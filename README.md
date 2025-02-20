@@ -1,6 +1,6 @@
 # 🌍 Terraburst
 
-**Terraform, but Faster, Smarter, and Parallelized** 🚀
+**Terraform "Smarter", and Parallelized** 🚀
 
 Terraburst is a CLI tool that supercharges your Terraform workflows by running **Terraform plans in parallel** across multiple projects. It automates workspace selection, runs pre- and post-execution commands, and ensures **Terraform plan files** are saved both in your project folder and in the current working directory.
 
