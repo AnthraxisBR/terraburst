@@ -7,18 +7,25 @@ Terraburst is a CLI tool that supercharges your Terraform workflows by running *
 ---
 
 ## ✨ Features
-✅ **Parallel Execution** – Run Terraform plans across multiple directories simultaneously.  
-✅ **Workspace-Aware** – Automatically selects the right workspace for each project.  
-✅ **Custom Hooks** – Define `before_plan` and `after_plan` commands to automate additional tasks.  
-✅ **Plan File Management** – Saves Terraform plan files in both your project directory and the current working directory.  
+✅ **Parallel Execution** – Run Terraform plans across multiple directories simultaneously.
+ 
+✅ **Workspace-Aware** – Automatically selects the right workspace for each project.
+
+✅ **Custom Hooks** – Define `before_plan` and `after_plan` commands to automate additional tasks.
+
+✅ **Plan File Management** – Saves Terraform plan files in both your project directory and the current working directory.
+
 ✅ **Seamless Configuration** – Each Terraform project can have its own `terraburst.yml` configuration file.
+
+✅ **Global Configuration** – Use a global `terraform-main.yaml` file to manage multiple projects.
+
+✅ **Plan Validation** – Classifies and validates Terraform plan changes based on impact.
 
 ---
 
 ## 📦 Installation
 
 Make sure you have Python installed, then install Terraburst (there's no pip package yet):
-
 
 ```sh
 git clone git@github.com:AnthraxisBR/terraburst.git
@@ -34,20 +41,55 @@ pip install -e .
 Each Terraform project should have a `terraburst.yml` file with the following structure:
 
 ```yaml
-workspace: production (required)
-var_file: vars.json (optional)
-output_file: output (optional)
-variables: (optional)
+workspace: production
+var_file: vars.json  # Optional
+output_file: output  # Optional
+variables:  # Optional
   - name: action
     value: plan
 before_plan:
-  - terraform init (optional)
-  - echo "Preparing Terraform" (optional)
+  - terraform init
+  - echo "Preparing Terraform"
 after_plan:
-  - echo "Plan completed!" (optional)
+  - echo "Plan completed!"
 ```
 
-### 2️⃣ Run Terraburst
+### 2️⃣ Create a Global Configuration File
+You can also create a global `terraburst-main.yaml` file to manage multiple projects:
+
+```yaml
+projects:
+  - name: infrastructure-core
+    projects:
+     - name: terraform-project-1
+       project_path: projects/terraform-project-1
+       workspace: production
+       var_file: vars.json
+       output_file: output
+       variables:
+         - name: action
+           value: plan
+       before_plan:
+         - terraform init
+         - echo "Preparing Terraform"
+       after_plan:
+         - echo "Plan completed!"
+     - name: terraform-project-2
+       project_path: projects/terraform-project-2
+       workspace: production
+       var_file: vars.json
+       output_file: output
+       variables:
+         - name: action
+           value: plan
+       before_plan:
+         - terraform init
+         - echo "Preparing Terraform"
+       after_plan:
+         - echo "Plan completed!"
+```
+
+### 3️⃣ Run Terraburst
 From the root directory containing multiple Terraform projects, execute:
 
 ```sh
@@ -61,6 +103,18 @@ This will:
 4. **Save the Terraform plan files** in both locations:
    - `./environments/my-project/terraburst_plan`
    - `./terraburst_plan_my-project`
+
+### 4️⃣ Validate Terraform Plan
+To validate a Terraform plan, execute:
+
+```sh
+terraburst validate -p planfile
+```
+
+This will:
+1. **Load the Terraform plan** from the specified file.
+2. **Classify and validate changes** based on their impact.
+3. **Output a summary** of the validation results.
 
 ---
 
@@ -85,15 +139,35 @@ after_plan:
 
 ---
 
+## 📌 Running a Specific Project from a Global Configuration
+
+If you want to execute Terraform plans for a **specific project** defined in your `terraburst-main.yaml` file, use the following command:
+
+```sh
+terraburst plan -tc terraburst-main.yaml -c 2 --project infrastructure-core
+```
+
+### What This Command Does:
+✅ **Uses `terraburst-main.yaml` as the configuration file** (`-tc terraburst-main.yaml`).
+
+✅ **Limits parallel execution to 2 projects at a time** (`-c 2`).
+
+✅ **Runs only the `infrastructure-core` project** (`--project infrastructure-core`).
+
+This approach is useful when you have multiple Terraform projects and only need to run plans for a specific set of them while maintaining efficiency and avoiding unnecessary execution.
+
+---
+
 ## 🎯 Why Use Terraburst?
 - **No More Waiting** – Parallel execution speeds up your Terraform workflow.
 - **Less Manual Work** – Automatically selects workspaces and executes pre/post commands.
 - **Consistent Plan Storage** – Keeps Terraform plans in both project and root directories.
 - **Easy to Integrate** – Works with any existing Terraform project structure.
+- **Change Validation** – Ensures changes are classified and validated based on their impact.
 
 ---
 
 ## 🛠️ Contributing
+
 Want to add features or fix bugs? Fork the repo, create a branch, and open a PR! Contributions are always welcome.
 
----
